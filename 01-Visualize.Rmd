@@ -5,16 +5,17 @@ editor_options:
   chunk_output_type: inline
 ---
 
-<!-- This file by Amelia McNamara is licensed under a Creative Commons Attribution 4.0 International License, adapted from the orignal work at https://github.com/rstudio/master-the-tidyverse by RStudio. -->
+<!-- This file by Jake Thompson is licensed under a Creative Commons Attribution 4.0 International License, adapted from the orignal work at https://github.com/rstudio/master-the-tidyverse by RStudio. -->
 
 ## Setup
 
 The first chunk in an R Notebook is usually titled "setup," and by convention includes the R packages you want to load. Remember, in order to use an R package you have to run some `library()` code every session. Execute these lines of code to load the packages. 
 
 ```{r setup}
-library(ggplot2)
+library(tidyverse)
 library(fivethirtyeight)
 ```
+
 
 ## Bechdel test data
 
@@ -33,9 +34,9 @@ Sometimes, people prefer to see their data in a more spreadsheet-like format, an
 (An aside-- `View` is a special function. Since it makes something happen in the RStudio interface, it doesn't work properly in R Notebooks. Most R functions have names that start with lowercase letters, so the uppercase "V" is there to remind you of its special status.)
 
 
-
 ## Consider
 What relationship do you expect to see between movie budget (budget) and domestic gross(domgross)?
+
 
 ## Your Turn 1
 
@@ -44,6 +45,7 @@ Run the code on the slide to make a graph. Pay strict attention to spelling, cap
 ```{r}
 
 ```
+
 
 ## Your Turn 2
 
@@ -54,6 +56,7 @@ ggplot(data = bechdel) +
   geom_point(mapping = aes(x = budget, y = domgross))
 ```
 
+
 ## Set vs map
 
 ```{r}
@@ -61,13 +64,16 @@ ggplot(bechdel) +
     geom_point(mapping = aes(x = budget, y = domgross), color = "blue")
 ```
 
+
 ## Your Turn 3
 
 Replace this scatterplot with one that draws boxplots. Use the cheatsheet. Try your best guess.
 
 ```{r}
-ggplot(data = bechdel) + geom_point(aes(x = clean_test, y = budget))
+ggplot(data = bechdel) +
+  geom_point(aes(x = clean_test, y = budget))
 ```
+
 
 ## Your Turn 4
 
@@ -77,14 +83,8 @@ Make a histogram of the `budget` variable from `bechdel`.
 
 ```
 
+
 ## Your Turn 5
-Try to find a better `binwidth` for `budget`.
-
-```{r}
-
-```
-
-## Your Turn 6
 
 Make a density plot of `budget` colored by `clean_test`.
 
@@ -92,7 +92,8 @@ Make a density plot of `budget` colored by `clean_test`.
 
 ```
 
-## Your Turn 7
+
+## Your Turn 6
 
 Make a barchart of `clean_test` colored by `clean_test`.
 
@@ -101,7 +102,7 @@ Make a barchart of `clean_test` colored by `clean_test`.
 ```
 
 
-## Your Turn 8
+## Your Turn 7
 
 Predict what this code will do. Then run it.
 
@@ -110,6 +111,7 @@ ggplot(data = bechdel) +
   geom_point(mapping = aes(x = budget, y = domgross)) +
   geom_smooth(mapping = aes(x = budget, y = domgross))
 ```
+
 
 ## global vs local
 
@@ -126,14 +128,14 @@ ggplot(data = bechdel, mapping = aes(x = budget, y = domgross)) +
 ```
 
 
-
-## Your Turn 
+## Your Turn 8
 
 What does `getwd()` return?
 
 ```{r}
 
 ```
+
 
 ## Your Turn 9
 
@@ -144,6 +146,7 @@ Save the last plot and then locate it in the files pane. If you run your `ggsave
 ```
 
 ***
+
 
 # Take aways
 
