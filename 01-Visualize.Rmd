@@ -71,7 +71,7 @@ Replace this scatterplot with one that draws boxplots. Use the cheatsheet. Try y
 
 ```{r}
 ggplot(data = bechdel) +
-  geom_point(aes(x = clean_test, y = budget))
+  geom_point(mapping = aes(x = clean_test, y = budget))
 ```
 
 
@@ -130,23 +130,23 @@ ggplot(data = bechdel, mapping = aes(x = budget, y = domgross)) +
 
 ## Your Turn 8
 
-What does `getwd()` return?
+Add a position adjustment to this plot to compare the frequency of test results across decades.
 
 ```{r}
-
+ggplot(data = bechdel, mapping = aes(x = decade_code)) +
+  geom_bar(mapping = aes(fill = clean_test))
 ```
 
 
-## Your Turn 9
+## Saving plots
 
-Save the last plot and then locate it in the files pane. If you run your `ggsave()` code inside this notebook, the image will be saved in the same directory as your .Rmd file (likely, project -> code), but if you run `ggsave()` in the Console it will be in your working directory. 
+Save the last plot. If you run your `ggsave()` code inside this notebook, the image will be saved in the same directory as your .Rmd file but if you run `ggsave()` in the Console it will be in your working directory. You can manually set the directory with the `path` argument. 
 
 ```{r}
-
+ggsave("my-plot.png", width = 8, height = 6, units = "in", dpi = "retina")
 ```
 
 ***
-
 
 # Take aways
 
@@ -154,5 +154,9 @@ You can use this code template to make thousands of graphs with **ggplot2**.
 
 ```{r eval = FALSE}
 ggplot(data = <DATA>) +
-  <GEOM_FUNCTION>(mapping = aes(<MAPPINGS>))
+  <GEOM_FUNCTION>(mapping = aes(<MAPPINGS>),
+                  stat = <STAT>, position = <POSITION>) +
+  <FACET_FUNCTION> +
+  <SCALE_FUNCTION> +
+  <THEME_FUNCTION>
 ```
