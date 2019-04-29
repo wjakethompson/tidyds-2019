@@ -8,7 +8,7 @@ editor_options:
 <!-- This file by Jake Thompson is licensed under a Creative Commons Attribution 4.0 International License, adapted from the orignal work at https://github.com/rstudio/master-the-tidyverse by RStudio. -->
 
 ```{r setup}
-library(dplyr)
+library(tidyverse)
 library(babynames)
 library(nycflights13)
 library(skimr)
@@ -20,22 +20,17 @@ library(skimr)
 ```{r}
 babynames
 skim(babynames)
-skim_with(integer = list(p25 = NULL, p75=NULL))
 ```
 
 
 ## Your Turn 1
 
-Run the skim_with() command, and then try skimming babynames again to see how the output is different
-```{r}
-
-```
-
-## Select
+Run the `skim_with()` command, and then try skimming babynames again to see how the output is different
 
 ```{r}
-select(babynames, name, prop)
+skim_with(integer = list(p25 = NULL, p75=NULL))
 ```
+
 
 ## Your Turn 2
 
@@ -43,6 +38,20 @@ Alter the code to select just the `n` column:
 
 ```{r}
 select(babynames, name, prop)
+```
+
+
+## `select()` helpers
+
+```{r}
+select(storms, name:pressure)
+select(storms, -c(name, pressure))
+select(storms, starts_with("w"))
+select(storms, ends_with("e"))
+select(storms, contains("d"))
+select(storms, matches("^.{4}$"))
+select(storms, one_of(c("name", "names", "Name")))
+select(storms, num_range("x", 1:5))
 ```
 
 
@@ -57,30 +66,25 @@ select(babynames, starts_with("n"))
 select(babynames, ends_with("n"))
 ```
 
-## Filter
-
-```{r}
-filter(babynames, name == "Amelia")
-```
 
 ## Your Turn 3
 
 Show:
 
 * All of the names where prop is greater than or equal to 0.08  
-* All of the children named "Sea"  
+* All of the children named "Daenerys"  
 * All of the names that have a missing value for `n`  
 
 ```{r}
-filter(babynames, is.na(n))
 
 ```
+
 
 ## Your Turn 4
 
 Use Boolean operators to alter the code below to return only the rows that contain:
 
-* Girls named Sea  
+* Girls named Sea 
 * Names that were used by exactly 5 or 6 children in 1880  
 * Names that are one of Acura, Lexus, or Yugo
 
@@ -88,11 +92,6 @@ Use Boolean operators to alter the code below to return only the rows that conta
 filter(babynames, name == "Sea" | name == "Anemone")
 ```
 
-## Arrange
-
-```{r}
-arrange(babynames, n)
-```
 
 ## Your Turn 5
 
@@ -102,20 +101,16 @@ Arrange babynames by `n`. Add `prop` as a second (tie breaking) variable to arra
 
 ```
 
-## desc
-
-```{r}
-arrange(babynames, desc(n))
-```
 
 ## Your Turn 6
 
-Use `desc()` to find the names with the highest prop.
-Then, use `desc()` to find the names with the highest n.
+* Use `desc()` to find the names with the highest prop.
+* Then, use `desc()` to find the names with the highest n.
 
 ```{r}
 
 ```
+
 
 ## Steps and the pipe
 
@@ -125,6 +120,7 @@ babynames %>%
   select(name, n) %>%
   arrange(desc(n))
 ```
+
 
 ## Your Turn 7
 
@@ -138,19 +134,21 @@ Use `%>%` to write a sequence of functions that:
 
 ```
 
+
 ## Your Turn 8
 
 1. Trim `babynames` to just the rows that contain your `name` and your `sex`  
 2. Trim the result to just the columns that will appear in your graph (not strictly necessary, but useful practice)  
-3. Plot the results as a line graph with `year` on the x axis and `prop` on the y axis
+3. Plot the results as a line graph with `year` on the x axis and `prop` on the y axis, colored by `sex`
 
 ```{r}
 
 ```
 
+
 ## Your Turn 9
 
-Use summarise() to compute three statistics about the data:
+Use `summarize()` to compute three statistics about the data:
 
 1. The first (minimum) year in the dataset  
 2. The last (maximum) year in the dataset  
@@ -160,9 +158,10 @@ Use summarise() to compute three statistics about the data:
 
 ```
 
+
 ## Your Turn 10
 
-Extract the rows where `name == "Khaleesi"`. Then use `summarise()` and a summary functions to find:
+Extract the rows where `name == "Khaleesi"`. Then use `summarize()` to find:
 
 1. The total number of children named Khaleesi
 2. The first year Khaleesi appeared in the data
@@ -170,6 +169,7 @@ Extract the rows where `name == "Khaleesi"`. Then use `summarise()` and a summar
 ```{r}
 
 ```
+
 
 ## Toy data for transforming
 
@@ -186,74 +186,73 @@ pollution <- tribble(
 )
 ```
 
+
 ## Summarize
 
 ```{r}
 pollution %>% 
- summarise(mean = mean(amount), sum = sum(amount), n = n())
+ summarize(mean = mean(amount), sum = sum(amount), n = n())
 ```
 
 ```{r}
 pollution %>% 
   group_by(city) %>%
-  summarise(mean = mean(amount), sum = sum(amount), n = n())
+  summarize(mean = mean(amount), sum = sum(amount), n = n())
 ```
 
 
 ## Your Turn 11
 
-Use `group_by()`, `summarise()`, and `arrange()` to display the ten most popular baby names. Compute popularity as the total number of children of a single gender given a name.
+Use `group_by()`, `summarize()`, and `arrange()` to display the ten most popular baby names. Compute popularity as the total number of children of a single gender given a name.
 
 ```{r}
 
 ```
+
 
 ## Your Turn 12
 
-Use grouping to calculate and then plot the number of children born each year over time.
+* Use grouping to calculate and then plot the number of children born each year over time.
+* Plot the results as a line graph.
 
 ```{r}
 
 ```
 
-## Ungroup
-
-```{r}
-babynames %>%
-  group_by(name, sex) %>% 
-  summarise(total = sum(n)) %>% 
-  arrange(desc(total))
-```
 
 ## Mutate
 
 ```{r}
 babynames %>%
-  mutate(percent = round(prop*100, 2))
+  mutate(percent = round(prop * 100, 2))
 ```
+
 
 ## Your Turn 13
 
-Use `min_rank()` and `mutate()` to rank each row in `babynames` from largest `n` to lowest `n`.
+Use `min_rank()` and `mutate()` to rank each row in `babynames` from largest `prop` to lowest `prop`.
 
 ```{r}
 
 ```
+
 
 ## Your Turn 14
 
-Compute each name's rank _within its year and sex_. 
-Then compute the median rank _for each combination of name and sex_, and arrange the results from highest median rank to lowest.
+* Compute each name's rank _within its year and sex_. 
+* Then compute the median rank _for each combination of name and sex_, and arrange the results from highest median rank to lowest.
 
 ```{r}
 
 ```
+
 
 ## Flights data
 ```{r}
 flights
 skim(flights)
 ```
+
 
 ## Toy data
 
@@ -273,18 +272,20 @@ instrument <- tribble(
 )
 
 instrument2 <- tribble(
-    ~artist,   ~plays,
+  ~artist,   ~plays,
    "John", "guitar",
    "Paul",   "bass",
   "Keith", "guitar"
 )
 ```
 
+
 ## Mutating joins
 
 ```{r}
 band %>% left_join(instrument, by = "name")
 ```
+
 
 ## Your Turn 15
 
@@ -296,11 +297,12 @@ Which airlines had the largest arrival delays? Complete the code below.
 ```{r}
 flights %>%
   drop_na(arr_delay) %>%
-                      %>%
-  group_by(         ) %>%
-                      %>%
-  arrange(       ) 
+  ___ %>%
+  group_by(___) %>%
+  ___ %>%
+  arrange(___) 
 ```
+
 
 ## Different names
 
@@ -308,17 +310,17 @@ flights %>%
 band %>% left_join(instrument2, by = c("name" = "artist"))
 ```
 
+
 ## Your Turn 16
 
 How many airports in `airports` are serviced by flights originating in New York (i.e. flights in our dataset?) Notice that the column to join on is named `faa` in the **airports** data set and `dest` in the **flights** data set.
 
 
 ```{r}
-__________ %>%
- _________(_________, by = ___________) %>%
-  distinct(faa)
+___ %>%
+  ___(___, by = ___) %>%
+  distinct(___)
 ```
-
 
 
 ***
@@ -329,7 +331,7 @@ __________ %>%
 * Extract cases with `filter()`  
 * Arrange cases, with `arrange()`  
 
-* Make tables of summaries with `summarise()`  
+* Make tables of summaries with `summarize()`  
 * Make new variables, with `mutate()`  
 * Do groupwise operations with `group_by()`
 
@@ -337,69 +339,3 @@ __________ %>%
 
 * Use `left_join()`, `right_join()`, `full_join()`, or `inner_join()` to join datasets
 * Use `semi_join()` or `anti_join()` to filter datasets against each other
-
-
-
-
-## Joining data
-
-```{r}
-library(nycflights13)
-```
-
-## Your turn
-Read in the toy datasets band and instrument
-
-
-## Types of joins
-
-```{r}
-band %>% left_join(instrument, by = "name")
-band %>% right_join(instrument, by = "name")
-band %>% full_join(instrument, by = "name")
-band %>% inner_join(instrument, by = "name")
-```
-
-## Your turn
-Which airlines had the largest arrival delays? Work in groups to complete the code below. 
-
-```{r}
-flights %>%
-  drop_na(arr_delay) %>%
-     #something!     %>%
-  group_by(   #something!  ) %>%
-     #something!      %>%
-  arrange(  #something! )       
-```
-
-## Your turn
-Read in the toy dataset instrument2
-
-## What if the names don't match?
-
-```{r}
-band %>% left_join(instrument2, by = c("name" = "artist"))
-```
-
-```{r}
-airports %>% left_join(flights, by = c("faa" = "dest"))
-```
-
-
-# Take aways
-
-* Extract variables with `select()`  
-* Extract cases with `filter()`  
-* Arrange cases, with `arrange()`  
-
-* Make tables of summaries with `summarise()`  
-* Make new variables, with `mutate()`  
-* Do groupwise operations with `group_by()`
-
-* Connect operations with `%>%`  
-
-* Use `left_join()`, `right_join()`, `full_join()`, or `inner_join()` to join datasets
-* Use `semi_join()` or `anti_join()` to filter datasets against each other
-
-
-
