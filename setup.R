@@ -1,1 +1,1 @@
-needed_packages <- c("tidyverse", "fivethirtyeight", "babynames", "nycflights13", "skimr")
+needed_packages <- c("tidyverse", "here", "skimr", "fivethirtyeight", "babynames", "nycflights13", "maps", "viridis", "mapproj")
