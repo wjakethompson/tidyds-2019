@@ -5,7 +5,7 @@ editor_options:
   chunk_output_type: inline
 ---
 
-```{r setup}
+```{r setup, include = FALSE}
 library(tidyverse)
 library(lubridate)
 library(hms)

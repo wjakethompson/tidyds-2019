@@ -7,7 +7,7 @@ editor_options:
 
 <!-- This file by Charlotte Wickham is licensed under a Creative Commons Attribution 4.0 International License. -->
 
-```{r setup}
+```{r setup, include = FALSE}
 library(tidyverse)
 ```
 

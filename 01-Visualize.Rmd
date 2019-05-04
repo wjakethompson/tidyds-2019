@@ -11,7 +11,7 @@ editor_options:
 
 The first chunk in an R Notebook is usually titled "setup," and by convention includes the R packages you want to load. Remember, in order to use an R package you have to run some `library()` code every session. Execute these lines of code to load the packages. 
 
-```{r setup}
+```{r setup, include = FALSE}
 library(tidyverse)
 library(fivethirtyeight)
 ```

@@ -7,11 +7,11 @@ editor_options:
 
 <!-- This file by Jake Thompson is licensed under a Creative Commons Attribution 4.0 International License, adapted from the orignal work at https://github.com/rstudio/master-the-tidyverse by RStudio. -->
 
-```{r setup}
+```{r setup, include = FALSE}
 library(tidyverse)
 library(viridis)
 
-# setwd("/Users/jakethompson/Documents/GIT/courses/tidyds-2019")
+setwd("/Users/jakethompson/Documents/GIT/courses/tidyds-2019")
 ```
 
 
