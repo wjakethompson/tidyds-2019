@@ -27,13 +27,13 @@ More detailed instructions can be found on the [workshop website](https://tidy-d
 
 Jake Thompson
 
-`r fa("globe")` [wjakethompson.com](https://wjakethompson.com)  
-`r fa("github")` [wjakethompson](https://github.com/wjakethompson)  
-`r fa("twitter")` [\@wjakethompson](https://twitter.com/wjakethompson)
+* Website: [wjakethompson.com](https://wjakethompson.com)
+* GitHub: [wjakethompson](https://github.com/wjakethompson)
+* Twitter: [\@wjakethompson](https://twitter.com/wjakethompson)
 
 
 ## License
 
 <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a>
 
-*Using R and the tidyverse for Data Science* by [Jake Thompson](https://wjakethompson.com) is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>. Based on the work of [Garrett Grolemund] (https://github.com/rstudio-education/master-the-tidyverse), [Charlotte Wickham](https://github.com/cwickham/data-science-in-tidyverse), and [Amelia McNamara](https://github.com/AmeliaMN/data-science-in-tidyverse).
+*Using R and the tidyverse for Data Science* by [Jake Thompson](https://wjakethompson.com) is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>. Based on the work of [Garrett Grolemund](https://github.com/rstudio-education/master-the-tidyverse), [Charlotte Wickham](https://github.com/cwickham/data-science-in-tidyverse), and [Amelia McNamara](https://github.com/AmeliaMN/data-science-in-tidyverse).
