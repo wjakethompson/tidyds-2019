@@ -1,0 +1,175 @@
+---
+title: "Organize with List Columns"
+output: html_notebook
+editor_options: 
+  chunk_output_type: inline
+---
+
+<!-- This file by Jake Thompson is licensed under a Creative Commons Attribution 4.0 International License, adapted from the orignal work at https://github.com/rstudio/master-the-tidyverse by RStudio. -->
+
+```{r setup, include = FALSE}
+library(tidyverse)
+library(broom)
+library(modelr)
+library(rsample)
+library(gapminder)
+library(tidydscompanion)
+library(here)
+```
+
+
+## Your Turn 1
+
+How has life expectancy changed over time?
+
+* Make a line plot of lifeExp vs. year grouped by country.  
+* Set alpha to 0.2, to see the results better.
+
+```{r}
+gapminder
+```
+
+
+## Quiz
+
+How is a data frame/tibble similar to a list?
+
+
+## Quiz
+
+If one of the elements of a list can be another list, can one of the columns of a data frame be another list?
+
+
+## Your Turn 2
+
+Run this chunk:
+
+```{r}
+gapminder_nested <- gapminder %>%
+  group_by(country) %>%
+  nest()
+
+fit_model <- function(df) lm(lifeExp ~ year, data = df)
+
+gapminder_nested <- gapminder_nested %>% 
+  mutate(model = map(data, fit_model))
+
+get_rsq <- function(mod) glance(mod)$r.squared
+
+gapminder_nested <- gapminder_nested %>% 
+  mutate(r.squared = map_dbl(model, get_rsq))
+```
+
+Then filter `gapminder_nested` to find the countries with r.squared less than 0.5.  
+
+```{r}
+
+```
+
+
+## Your Turn 3
+
+Edit the code in the chunk provided to instead find and plot countries with a slope above 0.6 years/year.
+
+```{r}
+get_slope <- function(mod) {
+  tidy(mod) %>% filter(term == "year") %>% pull(estimate)
+}
+
+# Add new column with r-sqaured
+gapminder_nested <- gapminder_nested %>% 
+  mutate(r.squared = map_dbl(model, get_rsq))
+
+# filter big slope countries
+poor_fit <- gapminder_nested %>% 
+  filter(r.squared < 0.5)
+
+# unnest and plot result
+unnest(poor_fit, data) %>%
+  ggplot(aes(x = year, y = lifeExp)) + 
+    geom_line(aes(color = country))
+```
+
+
+## Your Turn 4
+
+**Challenge:**
+
+1. Create your own copy of `gapminder_nested` and then add one more list column: `output` which contains the output of `augment()` for each model.
+2. Plot the residulals against time for the countries with small r-squared.
+
+```{r}
+
+```
+
+
+## Bootstrapping Comparisons
+
+```{r}
+mean(admission$gre_v[admission$gender == "Male"]) -
+  mean(admission$gre_v[admission$gender == "Female"])
+
+mean_diff <- function(splits) {
+  x <- analysis(splits)
+  mean(x$gre_v[x$gender == "Male"]) -
+    mean(x$gre_v[x$gender == "Female"])
+}
+
+set.seed(32011)
+grev_gender <- admission %>%
+  bootstraps(times = 100) %>%
+  mutate(grev_diff = map_dbl(splits, mean_diff))
+
+ggplot(grev_gender, mapping = aes(x = grev_diff)) +
+  geom_density()
+
+quantile(grev_gender$grev_diff, probs = c(0.025, 0.500, 0.975))
+```
+
+
+## Your Turn 5
+
+Is there a difference between the percentage of male and female applicants admitted?
+
+First, write some code to calculate the difference between the percentage of male applicants admitted, and the percentage of female applicants admitted.
+
+```{r}
+
+```
+
+Now, turn that code into a function, `pct_diff()`.
+
+```{r}
+pct_diff <- function(splits) {
+  x <- analysis(splits)
+  
+}
+```
+
+Generate 100 bootstraps, and apply the `pct_diff()` function to each bootstrapped sample.
+
+```{r}
+set.seed(32011)
+admit_gender <- admission %>%
+  ___ %>%
+  mutate(admit_diff = ___)
+```
+
+Finally, create a density plot of the difference, and create a 95% interval.
+
+```{r}
+ggplot(admit_gender, mapping = aes(___)) +
+  ___()
+
+quantile(___, probs = c(0.025, 0.500, 0.975))
+```
+
+
+***
+
+# Take away
+
+* Store objects and other lists in list-columns of data frames
+* Use `bootsraps()` to recreate resampled data objects
+* Use `vfold_cv()` to create analysis and assessment sub-samples of your data to assessment model performance
+* Use `purrr` to iterate over bootstrapped samples and cross validation folds
