@@ -6,7 +6,6 @@ output: github_document
 library(fontawesome)
 ```
 
-
 This is the repo for *"Using R and the tidyverse for Data Science"* given at the 2019 Summer Statistical Institute in May 2019.
 
 ## Description
