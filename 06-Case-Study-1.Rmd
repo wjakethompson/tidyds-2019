@@ -28,7 +28,7 @@ In the `fivethiryeight` package there are two datasets containing birth data, bu
 
 ## Your Turn 1 
 
-With your neighbour, brainstorm the steps needed to get the data in a form ready to make the plot.
+With your neighbor, brainstorm the steps needed to get the data in a form ready to make the plot.
 
 ```{r}
 US_births_1994_2003
