@@ -1,0 +1,240 @@
+---
+title: "Case Study 2 - Solution"
+output: html_notebook
+editor_options: 
+  chunk_output_type: inline
+---
+
+<!-- This file by Jake Thompson is licensed under a Creative Commons Attribution 4.0 International License, adapted from the orignal work at https://github.com/rstudio/master-the-tidyverse by RStudio. -->
+
+```{r setup}
+library(tidyverse)
+library(broom)
+library(rsample)
+library(tidydscompanion)
+library(here)
+```
+
+
+##  Task
+
+Reproduce these figures below, created from an analysis of the `admission` data.
+
+![](`r here("resources", "density.png")`)
+
+![](`r here("resources", "confint.png")`)
+
+
+## Data
+
+In the `tidydscompanion` package there is a data set containing simulated admissions data for a graduate program.
+
+
+## Your Turn 1
+
+What are the steps needed to create these plots?
+
+We'll follow these steps:
+
+1. Create cross validation sets
+2. Fit all three models to each analysis set
+3. Get predictions for each assessment set
+4. Calculate the outcome measures for each set of predictions
+5. Plot the distributions of the outcome measures
+
+
+## You Turn 2
+
+* Create a cross validation resampling with 10 folds and 10 repeats
+* Save the object as `models`
+
+```{r}
+set.seed(32011)
+models <- admission %>%
+  vfold_cv(v = 10, repeats = 10)
+```
+
+
+## Your Turn 3
+
+* Complete the function that takes in a `splits` and `formula` and returns predictions
+* Model should be fit using the **analysis** data
+* Predictions should be made on the **assessment** data
+* Use `mutate` to add columns to the predictions
+    * Predicted acceptance is `1` if `.fitted` is greater than 0.5, `0` otherwise
+    * Prediction is corrected if predicted value (from above) is the same as `admit`
+
+```{r}
+holdout_results <- function(splits, formula) {
+  # Fit the model to the analysis set
+  mod <- glm(formula, data = analysis(splits), family = binomial)
+  
+  # Save the assessment data
+  holdout <- assessment(splits)
+  
+  # `augment` will save the predictions with the holdout data set
+  res <- broom::augment(mod, newdata = holdout, type.predict = "response") %>%
+    mutate(prediction = ifelse(.fitted > 0.5, 1L, 0L),
+           correct = prediction == admit)
+  
+  # Return the assessment data set with the additional columns
+  res
+}
+```
+
+
+## Your Turn 4
+
+* Use `mutate` and `map` to use the `holdout_results` function to fit each model to the cross validation sets
+* Formulas for each model have already been saved for your convenience
+
+```{r}
+empty <- as.formula(admit ~ 1)
+academics <- as.formula(admit ~ gre_v * gre_q + gre_w + gpa)
+full <- as.formula(admit ~ gre_v * gre_q + gre_w + gpa + gender)
+
+all_mods <- models %>%
+  mutate(empty_mod = map(splits, holdout_results, formula = empty),
+         acadm_mod = map(splits, holdout_results, formula = academics),
+         compl_mod = map(splits, holdout_results, formula = full))
+```
+
+
+## Your Turn 5
+
+* Tidy the data so that the models are all in one column (`results`) with an identifier column (`model`)
+* Expand the `results` so we can do calculations on the predictions
+
+```{r}
+all_preds <- all_mods %>%
+  select(-splits) %>%
+  pivot_longer(contains("mod"), names_to = "model", values_to = "results") %>%
+  unnest(results)
+```
+
+
+## Your Turn 6
+
+* Calculate the percent of applicants correctly classified for each repeat, fold, and model
+* Plot the distributions for each model
+
+```{r}
+all_preds %>%
+  group_by(id, id2, model) %>%
+  summarize(pct_cor = mean(correct)) %>%
+  ggplot(aes(x = pct_cor)) +
+    geom_density(aes(fill = model, color = model), alpha = 0.6)
+```
+
+
+## Your Turn 7
+
+* Calculate the Log Loss for each repeat, fold, and model
+
+```{r}
+all_preds %>%
+  group_by(id, id2, model) %>%
+  summarize(logloss = -1 * mean((admit * log(.fitted)) + ((1 - admit) * log(1 - .fitted))))
+```
+
+
+## Your Turn 8
+
+* For each model, calculate the median, 2.5, and 97.5 percentiles of the Log Loss
+    * 95% confidence interval
+* Plot the results using `geom_errorbarh`
+* Hint: look at the required aesthetics using `?geom_errorbarh`
+
+```{r}
+all_preds %>%
+  group_by(id, id2, model) %>%
+  summarize(logloss = -1 * mean((admit * log(.fitted)) + ((1 - admit) * log(1 - .fitted)))) %>%
+  group_by(model) %>%
+  summarize(median = median(logloss),
+            lb = quantile(logloss, probs = 0.025),
+            ub = quantile(logloss, probs = 0.975)) %>%
+  ggplot(aes(y = model)) +
+    geom_errorbarh(aes(xmin = lb, xmax = ub), height = 0) +
+    geom_point(aes(x = median))
+```
+
+
+## Extra Challenge
+
+How would you add multiple error bars fo varying confidence intervals?
+
+Are there other methods we could use to measure the predictive accuracy of the models?
+
+
+## Final Graphics
+
+```{r include = FALSE}
+library(hrbrthemes)
+library(colorblindr)
+```
+
+### Correct Classification
+
+```{r}
+all_preds %>%
+  group_by(id, id2, model) %>%
+  summarize(pct_cor = mean(correct)) %>%
+  ggplot(aes(x = pct_cor)) +
+    geom_density(aes(color = model, fill = model), alpha = 0.4) +
+    scale_color_OkabeIto(limits = c("compl_mod", "acadm_mod", "empty_mod"),
+                         breaks = c("empty_mod", "acadm_mod", "compl_mod"),
+                         labels = c("Empty", "Academics", "Full")) +
+    scale_fill_OkabeIto(limits = c("compl_mod", "acadm_mod", "empty_mod"),
+                        breaks = c("empty_mod", "acadm_mod", "compl_mod"),
+                        labels = c("Empty", "Academics", "Full")) +
+    expand_limits(x = c(0.6, 0.9)) +
+    scale_x_percent() +
+    labs(x = "Correct Classification Rate", y = "Density", color = "Model",
+         fill = "Model",
+         title = "Distribution of Applicants Correctly Classified",
+         subtitle = "Using 10-fold cross validation with 10 repeats") +
+    theme_ipsum_ps() +
+    theme(legend.position = "bottom") +
+    guides(fill = guide_legend(override.aes = list(alpha = 1)))
+```
+
+### Log Loss
+
+```{r}
+all_preds %>%
+  group_by(id, id2, model) %>%
+  summarize(logloss = -1 * mean((admit * log(.fitted)) + ((1 - admit) * log(1 - .fitted)))) %>%
+  group_by(model) %>%
+  summarize(med = median(logloss),
+            lb_99 = quantile(logloss, prob = 0.005),
+            ub_99 = quantile(logloss, prob = 0.995),
+            lb_95 = quantile(logloss, prob = 0.025),
+            ub_95 = quantile(logloss, prob = 0.975),
+            lb_80 = quantile(logloss, prob = 0.100),
+            ub_80 = quantile(logloss, prob = 0.900)) %>%
+  pivot_longer(contains("_"), names_to = "boundary", values_to = "value") %>%
+  separate(boundary, into = c("bound", "level")) %>%
+  pivot_wider(names_from = bound, values_from = value) %>%
+  mutate(level = paste0(level, "%")) %>%
+  ggplot() +
+    geom_errorbarh(
+      aes(y = model, xmin = lb, xmax = ub, color = level, size = level),
+      height = 0
+    ) +
+    geom_point(aes(x = med, y = model), color = "#E69F00", size = 3) +
+    expand_limits(x = c(0.2, 0.7)) +
+    scale_y_discrete(limits = c("compl_mod", "acadm_mod", "empty_mod"),
+                     labels = c("Full", "Academics", "Empty")) +
+    scale_color_manual(values = c(
+      `80%` = darken("#56B4E9", .2),
+      `95%` = "#56B4E9",
+      `99%` = lighten("#56B4E9", .4)
+    )) +
+    scale_size_manual(values = c(`80%` = 4, `95%` = 3, `99%` = 2)) +
+    labs(x = "Median Log Loss", y = NULL, size = "Confidence Level",
+         color = "Confidence Level",
+         title = "Log Loss of Competing Models",
+         subtitle = "Using 10-fold cross validation with 10 repeats") +
+    theme_ipsum_ps() +
+    theme(legend.position = "bottom")
+```

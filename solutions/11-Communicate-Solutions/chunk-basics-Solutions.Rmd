@@ -1,0 +1,58 @@
+---
+title: "R in Markdown"
+author: "Jake Thompson"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    highlight: pygments
+    theme: cosmo
+---
+
+```{r setup, include = FALSE}
+library(tidyverse)
+```
+
+## Preliminary tasks
+
+1. It's a good practice to load the major packages for a document in a "setup" or "load packages" chunk. But the output from that chunk is a poor way for a reader to start off with a document.
+    * Add a chunk option to `setup` to suppress the output. (Hint: the option begins with `i`.)
+2. Add an inline R chunk to your document so that the current date/time show up here: *`r Sys.time()`*. Try to put the date in italics.
+
+### Add a plot chunk
+
+3. Make chunk producing a simple plot using the `mtcars` data frame built into R.
+
+```{r make-plot, echo = FALSE}
+ggplot(mtcars, aes(mpg, disp)) +
+  geom_point()
+```
+
+4. Add a label to the chunk in (3).
+5. Change the chunk options (echo, eval, include, message, warning) to explore what changes in the output. Then, decide on an appropriate option for each of the chunks. Compare your choices to your neighbors'.
+6. Turn the following into a proper chunk for R evaluation rather than just display of code.
+
+```{r summarize-mtcars, collapse = TRUE}
+names(mtcars)
+mtcars %>% 
+  summarize_all(median)
+```
+
+7. Returning to the chunk you made in (6), what does the option collapse (set to TRUE or FALSE) do? What is the default setting for this option? 
+
+## Inline code
+
+Typical uses of inline code ...
+
+8. Avoiding hard-coding of numbers. (They become out of date.)
+    - Bad: Our analysis involved 51 cars.
+    - Better: Our analysis involved `r nrow(mtcars)` cars.
+    
+```{r car_t_test, echo = FALSE}
+mod <- lm(mpg ~ disp + cyl, data = mtcars)
+```
+
+9. Reporting of results calculated elsewhere.
+    - Bad: Keeping displacement constant, an additional cylinder is associated with a loss of about 1.6 miles-per-gallon.
+    - Better: ...with a `r ifelse(coef(mod)["cyl"] > 0, "gain", "loss")` of about `r round(abs(coef(mod)["cyl"]), 1)` miles-per-gallon.
+
+**Stretch goal**: Update the date field in the YAML so that the date at the time of knitting the document is printed. (Hint: You can put YAML strings in quotation marks.)

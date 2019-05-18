@@ -1,0 +1,97 @@
+---
+title: "Import Data - Solutions"
+output: html_notebook
+editor_options: 
+  chunk_output_type: inline
+---
+
+<!-- This file by Jake Thompson is licensed under a Creative Commons Attribution 4.0 International License, adapted from the orignal work at https://github.com/rstudio/master-the-tidyverse by RStudio. -->
+
+```{r setup, include = FALSE}
+library(tidyverse)
+library(viridis)
+
+setwd("/Users/jakethompson/Documents/GIT/courses/tidyds-2019")
+```
+
+
+## here()
+
+```{r}
+library(here)
+
+here()
+here("slides")
+here("data", "nimbus.csv")
+
+dr_here()
+```
+
+
+## Your Turn 1
+
+Find nimbus.csv on your server or computer. Then read it into an object. Then view the results.
+
+```{r}
+nimbus <- read_csv(here("data", "nimbus.csv"))
+nimbus
+```
+
+
+## tibbles
+
+```{r}
+starwars
+as.data.frame(starwars)
+```
+
+
+## Your Turn 2
+
+* Read in the `nimbus` data set
+* Set values of `.` to `NA`
+
+```{r}
+nimbus <- read_csv(here("data", "nimbus.csv"), na = ".")
+```
+
+
+## Your Turn 3
+
+* Modify the code to specify `ozone` as integer values
+
+```{r}
+nimbus <- read_csv(here("data", "nimbus.csv"), na = ".",
+                   col_types = cols(ozone = col_integer()))
+
+world <- map_data(map = "world")
+
+ggplot(data = nimbus) +
+  geom_point(mapping = aes(x = longitude, y = latitude, color = ozone)) +
+  geom_path(data = world, aes(x = long, y = lat, group = group)) +
+  coord_map("ortho", orientation=c(-90, 0, 0)) +
+  scale_color_viridis(option = "A")
+```
+
+
+***
+
+# Take Aways
+
+The readr package provides efficient functions for reading and saving common flat file data formats. The tibble package provides improvements to the default data frame behavior.
+
+Consider these packages for other types of data:
+
+Package                   | Reads
+------------------------- | -----------------------------------
+readr                     | most flat files (.csv, .tsv, etc.)
+readxl                    | excel files (.xls, .xlsx)
+haven                     | SPSS, Stata, and SAS files
+googlesheets, googledrive | Google Sheets and Google Drive
+feather                   | Data transfers between R and Python
+rvest                     | web pages (web scraping)
+sparklyr                  | data loaded into spark
+jsonlite                  | json
+xml2                      | xml
+httr                      | web API's
+DBI                       | databases
