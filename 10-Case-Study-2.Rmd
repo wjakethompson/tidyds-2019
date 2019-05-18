@@ -32,6 +32,8 @@ In the `tidydscompanion` package there is a data set containing simulated admiss
 
 ## Your Turn 1
 
+What are the steps needed to create these plots?
+
 
 ## You Turn 2
 
@@ -40,8 +42,8 @@ In the `tidydscompanion` package there is a data set containing simulated admiss
 
 ```{r}
 set.seed(32011)
-models <- admission %>%
-  vfold_cv(v = 10, repeats = 10)
+models <- admission
+
 ```
 
 
@@ -57,15 +59,15 @@ models <- admission %>%
 ```{r}
 holdout_results <- function(splits, formula) {
   # Fit the model to the analysis set
-  mod <- glm(formula, data = analysis(splits), family = binomial)
+  mod <- glm(___, data = ___, family = binomial)
   
   # Save the assessment data
-  holdout <- assessment(splits)
+  holdout <- ___
   
   # `augment` will save the predictions with the holdout data set
-  res <- broom::augment(mod, newdata = holdout, type.predict = "response") %>%
-    mutate(prediction = ifelse(.fitted > 0.5, 1L, 0L),
-           correct = prediction == admit)
+  res <- broom::augment(___, newdata = ___, type.predict = "response") %>%
+    mutate(prediction = ___,
+           correct = ___)
   
   # Return the assessment data set with the additional columns
   res
@@ -84,9 +86,9 @@ academics <- as.formula(admit ~ gre_v * gre_q + gre_w + gpa)
 full <- as.formula(admit ~ gre_v * gre_q + gre_w + gpa + gender)
 
 all_mods <- models %>%
-  mutate(empty_mod = map(splits, holdout_results, formula = empty),
-         acadm_mod = map(splits, holdout_results, formula = academics),
-         compl_mod = map(splits, holdout_results, formula = full))
+  mutate(empty_mod = map(___, ___, formula = ___),
+         acadm_mod = map(___, ___, formula = ___),
+         compl_mod = map(___, ___, formula = ___))
 ```
 
 
@@ -97,9 +99,8 @@ all_mods <- models %>%
 
 ```{r}
 all_preds <- all_mods %>%
-  select(-splits) %>%
-  pivot_longer(contains("mod"), names_to = "model", values_to = "results") %>%
-  unnest(results)
+  select(-splits)
+
 ```
 
 
@@ -109,11 +110,8 @@ all_preds <- all_mods %>%
 * Plot the distributions for each model
 
 ```{r}
-all_preds %>%
-  group_by(id, id2, model) %>%
-  summarize(pct_cor = mean(correct)) %>%
-  ggplot(aes(x = pct_cor)) +
-    geom_density(aes(fill = model, color = model), alpha = 0.6)
+all_preds
+
 ```
 
 
@@ -122,9 +120,8 @@ all_preds %>%
 * Calculate the Log Loss for each repeat, fold, and model
 
 ```{r}
-all_preds %>%
-  group_by(id, id2, model) %>%
-  summarize(logloss = -1 * mean((admit * log(.fitted)) + ((1 - admit) * log(1 - .fitted))))
+all_preds
+
 ```
 
 
@@ -138,14 +135,8 @@ all_preds %>%
 ```{r}
 all_preds %>%
   group_by(id, id2, model) %>%
-  summarize(logloss = -1 * mean((admit * log(.fitted)) + ((1 - admit) * log(1 - .fitted)))) %>%
-  group_by(model) %>%
-  summarize(median = median(logloss),
-            lb = quantile(logloss, probs = 0.025),
-            ub = quantile(logloss, probs = 0.975)) %>%
-  ggplot(aes(y = model)) +
-    geom_errorbarh(aes(xmin = lb, xmax = ub), height = 0) +
-    geom_point(aes(x = median))
+  summarize(logloss = -1 * mean((admit * log(.fitted)) + ((1 - admit) * log(1 - .fitted))))
+
 ```
 
 
