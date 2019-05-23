@@ -199,6 +199,33 @@ ggplot(data = births_13_sum, aes(x = day_of_week, y = avg_diff_13)) +
   geom_col()
 ```
 
+And the code to more closely mimic the actual FiveThirtyEight graphic:
+
+```{r}
+births_13_sum %>%
+  mutate(day_of_week = fct_relevel(day_of_week, "Mon", "Tues", "Wed", "Thurs",
+                                   "Fri", "Sat", "Sun"),
+         friday = day_of_week == "Fri") %>%
+ggplot(aes(x = day_of_week, y = avg_diff_13)) +
+  geom_col(aes(fill = friday), show.legend = FALSE) +
+  geom_hline(yintercept = 0) +
+  scale_fill_manual(values = c("#F2B5ED", "#F200DF")) +
+  scale_x_discrete(position = "top") +
+  scale_y_continuous(breaks = seq(-6, 0, by = 1),
+                     labels = c(-6:-1, "0 ppt")) +
+  # coord_cartesian(expand = FALSE) +
+  labs(x = NULL, y = NULL,
+       title = "The Friday the 13th effect",
+       subtitle = "Difference in the share of U.S. births on the 13th of each month\nfrom the average of births on the 6th and the 20th, 1994-2003") +
+  theme(axis.ticks = element_blank(),
+        axis.text.y = element_text(hjust = 0),
+        panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill = "#F0F0F0"),
+        plot.background = element_rect(fill = "#F0F0F0"),
+        panel.grid.major = element_line(color = "#DBDBDB"),
+        plot.title = element_text(face = "bold", size = rel(1.5)))
+```
+
 
 ## Extra Challenges
 
