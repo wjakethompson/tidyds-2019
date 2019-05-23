@@ -113,6 +113,21 @@ wages %>%
     facet_grid(rows = vars(model), cols = vars(education))
 ```
 
+You can also create dummy data in order to generate predictions across a range of values that was not observed in your data.
+
+```{r}
+new_data <- crossing(height = 50:90,
+                     education = 1:20,
+                     sex = factor(c("male", "female"),
+                                  levels = c("male", "female")))
+
+new_data %>% 
+  gather_predictions(mod_h, mod_eh, mod_ehs) %>%
+  filter(education > 11) %>%
+  ggplot(mapping = aes(x = height, y = pred, color = sex)) +
+    geom_line() +
+    facet_grid(rows = vars(model), cols = vars(education))
+```
 
 ##  Your Turn 8
 
