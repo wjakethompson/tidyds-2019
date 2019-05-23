@@ -13,6 +13,8 @@ library(broom)
 library(rsample)
 library(tidydscompanion)
 library(here)
+library(colorblindr)
+library(hrbrthemes)
 ```
 
 
@@ -126,6 +128,31 @@ all_preds %>%
     geom_density(aes(fill = model, color = model), alpha = 0.6)
 ```
 
+And the code to reproduce the entire graphic:
+
+```{r}
+all_preds %>%
+  group_by(id, id2, model) %>%
+  summarize(pct_cor = mean(correct)) %>%
+  ggplot(aes(x = pct_cor)) +
+    geom_density(aes(color = model, fill = model), alpha = 0.4) +
+    scale_color_OkabeIto(limits = c("compl_mod", "acadm_mod", "empty_mod"),
+                         breaks = c("empty_mod", "acadm_mod", "compl_mod"),
+                         labels = c("Empty", "Academics", "Full")) +
+    scale_fill_OkabeIto(limits = c("compl_mod", "acadm_mod", "empty_mod"),
+                        breaks = c("empty_mod", "acadm_mod", "compl_mod"),
+                        labels = c("Empty", "Academics", "Full")) +
+    expand_limits(x = c(0.6, 0.9)) +
+    scale_x_percent() +
+    labs(x = "Correct Classification Rate", y = "Density", color = "Model",
+         fill = "Model",
+         title = "Distribution of Applicants Correctly Classified",
+         subtitle = "Using 10-fold cross validation with 10 repeats") +
+    theme_ipsum_ps() +
+    theme(legend.position = "bottom") +
+    guides(fill = guide_legend(override.aes = list(alpha = 1)))
+```
+
 
 ## Your Turn 7
 
@@ -158,47 +185,7 @@ all_preds %>%
     geom_point(aes(x = median))
 ```
 
-
-## Extra Challenge
-
-How would you add multiple error bars fo varying confidence intervals?
-
-Are there other methods we could use to measure the predictive accuracy of the models?
-
-
-## Final Graphics
-
-```{r include = FALSE}
-library(hrbrthemes)
-library(colorblindr)
-```
-
-### Correct Classification
-
-```{r}
-all_preds %>%
-  group_by(id, id2, model) %>%
-  summarize(pct_cor = mean(correct)) %>%
-  ggplot(aes(x = pct_cor)) +
-    geom_density(aes(color = model, fill = model), alpha = 0.4) +
-    scale_color_OkabeIto(limits = c("compl_mod", "acadm_mod", "empty_mod"),
-                         breaks = c("empty_mod", "acadm_mod", "compl_mod"),
-                         labels = c("Empty", "Academics", "Full")) +
-    scale_fill_OkabeIto(limits = c("compl_mod", "acadm_mod", "empty_mod"),
-                        breaks = c("empty_mod", "acadm_mod", "compl_mod"),
-                        labels = c("Empty", "Academics", "Full")) +
-    expand_limits(x = c(0.6, 0.9)) +
-    scale_x_percent() +
-    labs(x = "Correct Classification Rate", y = "Density", color = "Model",
-         fill = "Model",
-         title = "Distribution of Applicants Correctly Classified",
-         subtitle = "Using 10-fold cross validation with 10 repeats") +
-    theme_ipsum_ps() +
-    theme(legend.position = "bottom") +
-    guides(fill = guide_legend(override.aes = list(alpha = 1)))
-```
-
-### Log Loss
+And the code for the full graphic:
 
 ```{r}
 all_preds %>%
@@ -217,24 +204,31 @@ all_preds %>%
   pivot_wider(names_from = bound, values_from = value) %>%
   mutate(level = paste0(level, "%")) %>%
   ggplot() +
-    geom_errorbarh(
-      aes(y = model, xmin = lb, xmax = ub, color = level, size = level),
-      height = 0
-    ) +
-    geom_point(aes(x = med, y = model), color = "#E69F00", size = 3) +
-    expand_limits(x = c(0.2, 0.7)) +
-    scale_y_discrete(limits = c("compl_mod", "acadm_mod", "empty_mod"),
-                     labels = c("Full", "Academics", "Empty")) +
-    scale_color_manual(values = c(
-      `80%` = darken("#56B4E9", .2),
-      `95%` = "#56B4E9",
-      `99%` = lighten("#56B4E9", .4)
-    )) +
-    scale_size_manual(values = c(`80%` = 4, `95%` = 3, `99%` = 2)) +
-    labs(x = "Median Log Loss", y = NULL, size = "Confidence Level",
-         color = "Confidence Level",
-         title = "Log Loss of Competing Models",
-         subtitle = "Using 10-fold cross validation with 10 repeats") +
-    theme_ipsum_ps() +
-    theme(legend.position = "bottom")
+  geom_errorbarh(
+    aes(y = model, xmin = lb, xmax = ub, color = level, size = level),
+    height = 0
+  ) +
+  geom_point(aes(x = med, y = model), color = "#E69F00", size = 3) +
+  expand_limits(x = c(0.2, 0.7)) +
+  scale_y_discrete(limits = c("compl_mod", "acadm_mod", "empty_mod"),
+                   labels = c("Full", "Academics", "Empty")) +
+  scale_color_manual(values = c(
+    `80%` = darken("#56B4E9", .2),
+    `95%` = "#56B4E9",
+    `99%` = lighten("#56B4E9", .4)
+  )) +
+  scale_size_manual(values = c(`80%` = 4, `95%` = 3, `99%` = 2)) +
+  labs(x = "Median Log-Loss", y = NULL, size = "Confidence Level",
+       color = "Confidence Level",
+       title = "Log-loss of Competing Models",
+       subtitle = "Using 10-fold cross validation with 10 repeats") +
+  theme_ipsum_ps() +
+  theme(legend.position = "bottom")
 ```
+
+
+## Extra Challenge
+
+How would you add multiple error bars fo varying confidence intervals?
+
+Are there other methods we could use to measure the predictive accuracy of the models?
